@@ -2,6 +2,7 @@ from nltk.tokenize import TweetTokenizer
 from nltk.corpus import stopwords
 import re, string
 import nltk
+import pandas as pd
 
 """
 This part of the program takes our dataframe df containing
@@ -9,7 +10,8 @@ tweet data and extracts useful tokens, or meaningful keywords which
 we will be analysing and trying to make sense of
 """
 
-
+df = pd.read_csv("tweet_data.csv", sep=";",error_bad_lines=False)
+print(df["text"])
 tweets_text = df["text"].tolist()
 stopwords = stopwords.words('english') # stopwords are useless words like 'the', 'is' and all
 english_vocab = set(word.lower() for word in nltk.corpus.words.words())
