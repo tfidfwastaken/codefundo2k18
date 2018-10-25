@@ -1,3 +1,5 @@
+import matplotlib
+matplotlib.use('TkAgg')
 from nltk.tokenize import TweetTokenizer
 from nltk.corpus import stopwords
 import re, string
@@ -6,6 +8,7 @@ import pandas as pd
 import geograpy as geo
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
+plt.switch_backend('TkAgg')
 import requests
 import json
 from mpl_toolkits.basemap import Basemap
@@ -40,7 +43,7 @@ def process_tweets_texts(tweet):
 words = []
 places = []
 #for tw in tweets_text:
-for tw in tweets_text[0:500]:
+for tw in tweets_text[:1000]:
         words += process_tweets_texts(tw)
         places.append(geo.get_place_context(text=tw))
 city = []
@@ -57,12 +60,12 @@ city_lower = [i.lower() for i in city]
 
 #words_vis = ' '.join(words)
 
-wordcloud = WordCloud(width=800, height=500, random_state=21, max_font_size=110).generate(city_words)
+#wordcloud = WordCloud(width=800, height=500, random_state=21, max_font_size=110).generate(city_words)
 
-plt.figure(figsize=(10, 7))
-plt.imshow(wordcloud, interpolation="bilinear")
-plt.axis('off')
-plt.show()
+#plt.figure(figsize=(10, 7))
+#plt.imshow(wordcloud, interpolation="bilinear")
+#plt.axis('off')
+#   plt.show()
 
 
 m = Basemap(projection='mill',
@@ -89,7 +92,7 @@ for i in city_distinct:
 m.drawcoastlines()
 m.drawstates(color='b')
 m.drawcounties(color='darkred')
-
+'''
 for i in d:
     if d[i][0]>5:
         d[i].append(300)
@@ -101,10 +104,17 @@ for i in d:
         d[i].append(20)
     else:
         d[i].append(3)
-
-for i in d:
+        '''
+count_list = [i[0] for i in list(d.values())]
+max_count=max(count_list)
+print(max_count)
+m_size=[]
+for count in count_list:
+    m_size.append(count/max_count*50)
+    
+for i, j in zip(d, range(len(count_list))):
     xpt,ypt=m(d[i][2],d[i][1])
-    plt.plot(xpt, ypt, 'bo', markersize=d[i][3])
+    plt.plot(xpt, ypt, 'bo', markersize=m_size[j])
     plt.text(xpt, ypt, i, fontsize=12)    
 
 
