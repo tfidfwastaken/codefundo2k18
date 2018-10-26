@@ -12,6 +12,8 @@ plt.switch_backend('TkAgg')
 import requests
 import json
 from mpl_toolkits.basemap import Basemap
+import numpy as np
+from math import *
 
 """
 This part of the program takes our dataframe df containing
@@ -43,7 +45,7 @@ def process_tweets_texts(tweet):
 words = []
 places = []
 #for tw in tweets_text:
-for tw in tweets_text[:1000]:
+for tw in tweets_text[:500]:
         words += process_tweets_texts(tw)
         places.append(geo.get_place_context(text=tw))
 city = []
@@ -58,14 +60,14 @@ city_lower = [i.lower() for i in city]
 
 #Visualising data with wordcloud
 
-#words_vis = ' '.join(words)
+words_vis = ' '.join(words)
 
-#wordcloud = WordCloud(width=800, height=500, random_state=21, max_font_size=110).generate(city_words)
+wordcloud = WordCloud(width=800, height=500, random_state=21, max_font_size=110).generate(city_words)
 
-#plt.figure(figsize=(10, 7))
-#plt.imshow(wordcloud, interpolation="bilinear")
-#plt.axis('off')
-#   plt.show()
+plt.figure(figsize=(10, 7))
+plt.imshow(wordcloud, interpolation="bilinear")
+plt.axis('off')
+plt.show()
 
 
 m = Basemap(projection='mill',
@@ -119,3 +121,49 @@ for i, j in zip(d, range(len(count_list))):
 
 
 plt.show()
+
+li = ['SMR Vinay City','English and Foreign Languages University, Hyderabad','Banjara Hills, Hyderabad','Tata Institute of Social Science, SR Sankaran Block, Hyderabad','Central University of Hyderabad','Ganga Vertica, Neeladri main Road, Electronic City','Avohi, Venus Building, Kalyana Mandapa Road, Jakkasandra Ext, Koramangala','Confederation of Indian Industry, CII, 12 Main, HAL 2nd Stage, Indiranagar','Keli Cultural Association, Pruksa Silvana, Nimbekaipura Road, Budigere Cross, Old Madras Road, Bangalore','20, Basapura Road, HOSA Road Jn, Basapura, Bengaluru, Karnataka 560100','KRC Road Doddagubbi Main Road, Post, Kothanur, Bengaluru, Karnataka 560077','Indian Social Institute, 24 Benson Road, Benson Town, Bengaluru','SCM-India, 29, 2nd Cross, CSI compound, Mission Road, Bengaluru','Lions Club, No 9 Hanumanthappa Road, Sonangi Layout, Kammanahalli Main Road, Bengaluru-33','Elamkulam Road, Kadavanthra P.O., Ernakulam District, Kochi, Kerala 682020','Kaloor, Ernakulam, Kerala 682017','Idukki District, Kuyilimala, Kerala 685603','Collectrotae Wayanad, North Kalpetta P.O. Wayanad','Keltron House, Vellayambalam, Thiruvananthapuram, Kerala 695033','Mahathma Gandhi Rd, Overbridge, Santhi Nagar, Thampanoor, Thiruvananthapuram, Kerala 695001','Near Tagore Theatre, Vazhuthacaud, Thiruvananthapuram, Kerala 695010','YMCA Rd, Statue, Palayam, Thiruvananthapuram, Kerala 695001','Cotton Hill Road, Opp. Carmel Monastery, Cotton Hill, Vazhuthacaud, Thiruvananthapuram, Kerala 695010','CV Raman Pillai Rd, Vazhuthacaud, Thycaud P.O, Thiruvananthapuram, Kerala 695014','Salem - Kochi - Kanyakumari Hwy, Karyavattom, Thiruvananthapuram, Kerala 695581','SH 1, Nalanchira, Parottukonam, Thiruvananthapuram, Kerala 695015','Rosscote Bungalow, Rosscote Lane, Opp Trivandrum club, Vazhuthacaud, Thiruvananthapuram, Kerala 695010','Kerala State Branch Opp. General Hospital, Red Cross Road, Vanchiyoor, Thiruvananthapuram, Kerala 695035','Kunjulekshmi Towers, Kattakkada, Kerala','Pattom, Thiruvananthapuram, Kerala 695004','Technopark Campus, Kazhakkoottam, Kerala 695001','Thellakom, Kerala','St Marys College Rd, Chembukkav, Thrissur, Kerala 680020']
+
+
+d={}
+lats = []
+lons = []
+for i in li:
+    parameters = {
+            'key': '***REMOVED***',
+            'q': i,
+            'format': 'json'
+            }
+    response = requests.get(url,params=parameters)
+    lat=float(json.loads(response.text)[0]['lat'])
+    lon=float(json.loads(response.text)[0]['lon'])
+    d[i]=[lat,lon]
+    lats.append(lat)
+    lons.append(lon)
+
+
+lats2 = np.array(lats)
+lons2 = np.array(lons)
+#place = input('Please enter where you are: ')
+
+for place in city_distinct:
+    parameters = {
+                'key': '***REMOVED***',
+                'q': place,
+                'format': 'json'
+                }
+    response = requests.get(url,params=parameters)
+    lat1 = float(json.loads(response.text)[0]['lat']) #parsing json to obtain latitude and longitude of the place the user is at.
+    lon1 = float(json.loads(response.text)[0]['lon'])
+#print(lat1, lon1)
+
+    dlat = np.array([radians(x-lat1) for x in lats])
+    dlon = np.array([radians(x-lon1) for x in lons])
+
+    a = np.array(np.sin(dlat/2)**2 + np.cos(lat1) * np.cos(lats2) * np.sin(dlon/2)**2)  #Haversine Formula
+    c = 2 * np.arcsin(np.sqrt(np.abs(a)))
+    r = 6371 #radius of Earth in kilometres.
+    distances = list(r*c)
+
+    index = distances.index(min(distances))
+    print('Nearest Relief centre to', place,' is: ',li[index])
