@@ -14,13 +14,15 @@ import json
 from mpl_toolkits.basemap import Basemap
 import numpy as np
 from math import *
+import warnings
+warnings.filterwarnings('ignore')
 
 """
 This part of the program takes our dataframe df containing
  tweet data and extracts useful tokens, or meaningful keywords which
  we will be analysing and trying to make sense of
 """
-df = pd.read_csv("tweet_data.csv", sep=";",error_bad_lines=False)
+df = pd.read_csv("tweet_data.csv", sep=";",error_bad_lines=False, warn_bad_lines=False)
 
 tweets_text = df["text"].tolist()
 stopwords = stopwords.words('english') # stopwords are useless words like 'the', 'is' and all
@@ -109,7 +111,7 @@ for i in d:
         '''
 count_list = [i[0] for i in list(d.values())]
 max_count=max(count_list)
-print(max_count)
+#print(max_count)
 m_size=[]
 for count in count_list:
     m_size.append(count/max_count*50)
