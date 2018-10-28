@@ -84,7 +84,7 @@ d={}
 url = "https://us1.locationiq.com/v1/search.php"
 for i in city_distinct:
     parameters = {
-            'key': '***REMOVED***',
+            'key': '\'tis secret',
             'q': i,
             'format': 'json'
             }
@@ -132,7 +132,7 @@ lats = []
 lons = []
 for i in li:
     parameters = {
-            'key': '***REMOVED***',
+            'key': '340cf83a6d6dfc',
             'q': i,
             'format': 'json'
             }
@@ -150,7 +150,7 @@ lons2 = np.array(lons)
 
 for place in city_distinct:
     parameters = {
-                'key': '***REMOVED***',
+                'key': '340cf83a6d6dfc',
                 'q': place,
                 'format': 'json'
                 }
